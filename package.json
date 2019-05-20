@@ -1,0 +1,24 @@
+{
+  "name": "@linonetwo012/fast-belt",
+  "version": "1.0.0",
+  "description": "Try to make a fast game.",
+  "main": "index.js",
+  "scripts": {
+    "try": "mpicc ./trympi.cpp && mpirun --use-hwthread-cpus ./a.out",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linonetwo/fast-belt.git"
+  },
+  "keywords": [
+    "mpi",
+    "parallism"
+  ],
+  "author": "linonetwo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/linonetwo/fast-belt/issues"
+  },
+  "homepage": "https://github.com/linonetwo/fast-belt#readme"
+}
