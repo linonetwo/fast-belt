@@ -4,7 +4,8 @@
   "description": "Try to make a fast game.",
   "main": "index.js",
   "scripts": {
-    "try": "mpicc ./trympi.cpp && mpirun --use-hwthread-cpus ./a.out",
+    "start": "npm run build && mpirun --use-hwthread-cpus  ./FastBelt",
+    "build": "cmake . && make",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

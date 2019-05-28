@@ -1,12 +1,23 @@
-#include <mpi.h>
-#include <stdio.h>
+#include <string>
+#include <iostream>
+#include <boost/mpi.hpp>
 
-int main(int argc, char** argv) {
-    MPI_Init(NULL, NULL);
-    int rank;
-    int world;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &world);
-    printf("Hello: rank %d, world: %d\n",rank, world);
-    MPI_Finalize();
+int main(int argc, char *argv[])
+{
+	std::cout << "MPI start"
+						<< "\n";
+	boost::mpi::environment env{argc, argv};
+	boost::mpi::communicator world;
+	int tag = 10;
+	if (world.rank() == 0)
+	{
+		std::string s;
+		world.recv(boost::mpi::any_source, tag, s);
+		std::cout << "Master received string \"" << s << "\"\n";
+	}
+	else
+	{
+		std::string s = "Hello, world!";
+		world.send(0, tag, s);
+	}
 }
