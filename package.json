@@ -6,6 +6,7 @@
   "scripts": {
     "start": "npm run build && mpirun --use-hwthread-cpus  ./FastBelt",
     "build": "cmake . && make",
+    "clean": "rm -rf ./CMakeFiles && rm ./CMakeCache.txt && rm ./Makefile",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
