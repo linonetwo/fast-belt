@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.10)
+cmake_minimum_required (VERSION 3.14)
 
 project(FastBelt)
 
@@ -6,9 +6,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 # this is where `brew install boost-mpi` installs things, withoit this line, there will be something likes `fatal error: 'boost/mpi.hpp' file not found`
 include_directories("/usr/local/include")
 
-file(GLOB SRC 
-  "*cpp*"
-)
+# file(GLOB SRC 
+#   "*cpp*"
+# )
+set(SRC "trympi.cpp")
+
 add_executable(${PROJECT_NAME} ${SRC})
 
 # I don't know what these means

@@ -2,7 +2,6 @@
 #pragma once
 #include <stdio.h>
 #include <iostream>
-#include <omp.h>
 #include <random>
 #include <vector>
 using namespace std;
@@ -36,14 +35,14 @@ inline bool get_line_intersection(float p0_x, float p0_y, float p1_x, float p1_y
 	s32_y = p3_y - p2_y;
 
 	denom = s10_x * s32_y - s32_x * s10_y;
-	if (denom == 0)//Æ½ÐÐ»ò¹²Ïß
+	if (denom == 0)//Æ½ï¿½Ð»ï¿½ï¿½ï¿½
 		return 0; // Collinear
 	bool denomPositive = denom > 0;
 
 	s02_x = p0_x - p2_x;
 	s02_y = p0_y - p2_y;
 	s_numer = s10_x * s02_y - s10_y * s02_x;
-	if ((s_numer < 0) == denomPositive)//²ÎÊýÊÇ´óÓÚµÈÓÚ0ÇÒÐ¡ÓÚµÈÓÚ1µÄ£¬·Ö×Ó·ÖÄ¸±ØÐëÍ¬ºÅÇÒ·Ö×ÓÐ¡ÓÚµÈÓÚ·ÖÄ¸
+	if ((s_numer < 0) == denomPositive)//ï¿½ï¿½ï¿½ï¿½ï¿½Ç´ï¿½ï¿½Úµï¿½ï¿½ï¿½0ï¿½ï¿½Ð¡ï¿½Úµï¿½ï¿½ï¿½1ï¿½Ä£ï¿½ï¿½ï¿½ï¿½Ó·ï¿½Ä¸ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½ï¿½Ò·ï¿½ï¿½ï¿½Ð¡ï¿½Úµï¿½ï¿½Ú·ï¿½Ä¸
 		return false; // No collision
 
 	t_numer = s32_x * s02_y - s32_y * s02_x;
