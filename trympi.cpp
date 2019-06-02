@@ -171,7 +171,7 @@ void renderer(int argc, char *argv[], boost::mpi::communicator &world, boost::mp
             update(registry);
         }
 
-        render(glRenderer);
+        // render(glRenderer);
     }
 }
 
