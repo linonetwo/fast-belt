@@ -3,34 +3,75 @@
 #include <string>
 #include <iostream>
 #include <boost/mpi.hpp>
+#include <chrono>
+#include <csignal>
 
 #include "./data_prepare.h"
+
+using namespace std::chrono_literals;
+
+constexpr std::chrono::nanoseconds timestep(16ms);
+constexpr int timestep_ms = std::chrono::duration_cast<std::chrono::milliseconds>(timestep).count();
+
+int loopCount = 0;
+bool handle_events()
+{
+    // poll for events
+    loopCount += 1;
+    if (loopCount > 5000000)
+        return true;
+    return false; // true if the user wants to quit the game
+}
 
 const float SAME_LINE_THRESHOLD = 0.1;
 bool isSameLine(float2 point1, float2 point2, float2 point3)
 {
     return (point1.x * point2.y - point1.y * point2.x) + (point2.x * point3.y - point2.y * point3.x) + (point3.x * point1.y - point3.y * point1.x) <= SAME_LINE_THRESHOLD;
 }
+bool pointInSideLineSegment(float2 lineStart, float2 lineEnd, float2 point)
+{
+    return isSameLine(lineStart, lineEnd, point) &&
+           (((point.x >= lineStart.x && point.x <= lineEnd.x) && (point.y >= lineStart.y && point.y <= lineEnd.y)) ||
+            ((point.x <= lineStart.x && point.x >= lineEnd.x) && (point.y <= lineStart.y && point.y >= lineEnd.y)));
+}
 
-void update(std::uint64_t dt, entt::registry &registry)
+void update(entt::registry &registry)
 {
     auto belts = registry.view<belt>();
     auto objects = registry.view<object_data>();
 
-    auto counter = 0;
     for (auto beltEntity : belts)
     {
         auto &beltComponent = belts.get(beltEntity);
         for (auto objectEntity : objects)
         {
-            auto &objectComponent = objects.get(objectEntity);
-            if (isSameLine(beltComponent.start, beltComponent.end, objectComponent.pos))
+            int xDirection = 0;
+            int yDirection = 0;
+            if (beltComponent.start.x - beltComponent.end.x > 0)
             {
-                counter++;
+                xDirection = 1;
+            }
+            else
+            {
+                xDirection = -1;
+            }
+            if (beltComponent.start.y - beltComponent.end.y > 0)
+            {
+                yDirection = 1;
+            }
+            else
+            {
+                yDirection = -1;
+            }
+
+            auto &objectComponent = objects.get(objectEntity);
+            if (pointInSideLineSegment(beltComponent.start, beltComponent.end, objectComponent.pos))
+            {
+                objectComponent.pos.x += beltComponent.speed * timestep_ms * xDirection;
+                objectComponent.pos.y += beltComponent.speed * timestep_ms * yDirection;
             }
         }
     }
-    std::cout << counter << " same line!\n";
 }
 
 void renderer(int argc, char *argv[], boost::mpi::communicator &world, boost::mpi::environment &mpi_env)
@@ -71,16 +112,29 @@ void renderer(int argc, char *argv[], boost::mpi::communicator &world, boost::mp
 
     // game loop
 
-    // for (auto i = 0; i < beltNum * objectPerBelt; ++i)
-    // {
-    //     std::cout << "x: " << objects[0].pos.x << " y: " << objects[0].pos.y << "\n";
-    // }
-    update(dt, registry);
+    using clock = std::chrono::high_resolution_clock;
+    std::chrono::nanoseconds lag(0ns);
+    auto time_start = clock::now();
+    bool quit_game = false;
 
-    // for (auto i = 0; i < beltNum * objectPerBelt; ++i)
-    // {
-    //     std::cout << "x: " << objects[0].pos.x << " y: " << objects[0].pos.y << "\n";
-    // }
+    while (!quit_game)
+    {
+        auto delta_time = clock::now() - time_start;
+        time_start = clock::now();
+        lag += std::chrono::duration_cast<std::chrono::nanoseconds>(delta_time);
+
+        quit_game = handle_events();
+
+        // update game logic as lag permits
+        while (lag >= timestep)
+        {
+            lag -= timestep;
+            std::cout << "lag is " << lag.count() << " \n";
+            update(registry);
+        }
+
+        // render(registry);
+    }
 }
 
 void worker(int argc, char *argv[], boost::mpi::communicator &world, boost::mpi::environment &mpi_env)
