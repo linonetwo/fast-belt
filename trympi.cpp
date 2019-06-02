@@ -5,6 +5,7 @@
 #include <boost/mpi.hpp>
 #include <chrono>
 #include <csignal>
+#include <omp.h>
 
 #include "./render/glRender.h"
 #include "./data_prepare.h"
@@ -41,10 +42,11 @@ void update(entt::registry &registry)
     auto belts = registry.view<belt>();
     auto objects = registry.view<object_data>();
 
+#pragma omp parallel for schedule(guided)
     for (auto beltEntity : belts)
     {
         auto &beltComponent = belts.get(beltEntity);
-        
+
         for (auto objectEntity : objects)
         {
             int xDirection = 0;
@@ -189,6 +191,13 @@ int main(int argc, char *argv[])
     if (world.rank() == 0)
     {
         renderer(argc, argv, world, mpi_env);
+
+#pragma omp parallel for schedule(guided)
+        const auto n = 8;
+        for (auto i = 0; i < n; i++)
+        {
+            std::cout << i << ' ';
+        }
     }
     else
     {
