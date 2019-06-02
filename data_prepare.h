@@ -9,17 +9,41 @@ using namespace std;
 #define windowHeight 768
 struct float2 {
 	float x; float y;
+
+	template <typename Archive>
+  void serialize(Archive& ar, const unsigned int version)
+  {
+    ar & x;
+    ar & y;
+  }
 };
 struct belt {
 	float2 start;
 	float2 end;
 	float speed;
 	float length;
+
+	template <typename Archive>
+  void serialize(Archive& ar, const unsigned int version)
+  {
+    ar & start;
+    ar & end;
+    ar & speed;
+    ar & length;
+  }
 };
 struct object_data {
 	float2 pos;
 	float2 direction;
 	bool stopped;
+
+	template <typename Archive>
+  void serialize(Archive& ar, const unsigned int version)
+  {
+    ar & pos;
+    ar & direction;
+    ar & stopped;
+  }
 };
 inline float randf(float min, float max)
 {

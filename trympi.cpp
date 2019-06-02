@@ -3,8 +3,11 @@
 #include <string>
 #include <iostream>
 #include <boost/mpi.hpp>
+#include <boost/serialization/string.hpp>
 #include <chrono>
 #include <csignal>
+#include <thread>
+#include <vector>
 
 #include "./render/glRender.h"
 #include "./data_prepare.h"
@@ -13,6 +16,11 @@ using namespace std::chrono_literals;
 
 constexpr std::chrono::nanoseconds timestep(16ms);
 constexpr int timestep_ms = std::chrono::duration_cast<std::chrono::milliseconds>(timestep).count();
+enum
+{
+    CALCULATE_OBJECT_TAG,
+    CALCULATE_OBJECT_RESULT_TAG
+};
 
 int loopCount = 0;
 bool handle_events()
@@ -24,7 +32,7 @@ bool handle_events()
     return false; // true if the user wants to quit the game
 }
 
-const float SAME_LINE_THRESHOLD = 0.1;
+const float SAME_LINE_THRESHOLD = 1;
 bool isSameLine(float2 point1, float2 point2, float2 point3)
 {
     return (point1.x * point2.y - point1.y * point2.x) + (point2.x * point3.y - point2.y * point3.x) + (point3.x * point1.y - point3.y * point1.x) <= SAME_LINE_THRESHOLD;
@@ -36,41 +44,66 @@ bool pointInSideLineSegment(float2 lineStart, float2 lineEnd, float2 point)
             ((point.x <= lineStart.x && point.x >= lineEnd.x) && (point.y <= lineStart.y && point.y >= lineEnd.y)));
 }
 
-void update(entt::registry &registry)
+class BeltSystemData
+{
+public:
+    belt beltComponent;
+    object_data objectComponent;
+
+    BeltSystemData();
+    BeltSystemData(belt beltComponent_in,
+                   object_data objectComponent_in) : beltComponent(beltComponent_in), objectComponent(objectComponent_in) {}
+
+    ~BeltSystemData() {}
+
+    friend class boost::serialization::access;
+
+    template <class Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {
+        ar &beltComponent;
+        ar &objectComponent;
+    }
+
+    // friend ostream &operator<<(ostream &, BeltSystemData &);
+};
+BeltSystemData::BeltSystemData()
+{
+    beltComponent = {};
+    objectComponent = {};
+}
+// ostream &operator<<(ostream &s, BeltSystemData &tclass)
+// {
+//     s << "beltComponent:    " << tclass.beltComponent << '\n'
+//       << "objectComponent:    " << tclass.objectComponent << '\n';
+//     return s;
+// }
+
+void update(entt::registry &registry, boost::mpi::communicator &world)
 {
     auto belts = registry.view<belt>();
     auto objects = registry.view<object_data>();
 
+    std::vector<int> beltsVector = {};
+    std::vector<int> objectsVector = {};
     for (auto beltEntity : belts)
     {
         auto &beltComponent = belts.get(beltEntity);
-        
+
         for (auto objectEntity : objects)
         {
-            int xDirection = 0;
-            int yDirection = 0;
-            if (beltComponent.start.x - beltComponent.end.x > 0)
-            {
-                xDirection = 1;
-            }
-            else
-            {
-                xDirection = -1;
-            }
-            if (beltComponent.start.y - beltComponent.end.y > 0)
-            {
-                yDirection = 1;
-            }
-            else
-            {
-                yDirection = -1;
-            }
 
             auto &objectComponent = objects.get(objectEntity);
+
+            BeltSystemData dataToSend(beltComponent,
+                                      objectComponent);
+            world.send(1, CALCULATE_OBJECT_TAG, dataToSend);
+            float2 nextPosition;
+            world.recv(1, CALCULATE_OBJECT_RESULT_TAG, nextPosition);
             if (pointInSideLineSegment(beltComponent.start, beltComponent.end, objectComponent.pos))
             {
-                objectComponent.pos.x += beltComponent.speed * timestep_ms / 1000 * xDirection;
-                objectComponent.pos.y += beltComponent.speed * timestep_ms / 1000 * yDirection;
+                objectComponent.pos.x = nextPosition.x;
+                objectComponent.pos.y = nextPosition.y;
             }
         }
     }
@@ -168,7 +201,7 @@ void renderer(int argc, char *argv[], boost::mpi::communicator &world, boost::mp
         {
             lag -= timestep;
             std::cout << "lag is " << lag.count() << " \n";
-            update(registry);
+            update(registry, world);
         }
 
         // render(glRenderer);
@@ -179,6 +212,29 @@ void worker(int argc, char *argv[], boost::mpi::communicator &world, boost::mpi:
 {
     std::cout << "Worker Thread " << world.rank() << " started"
               << "\n";
+
+    while (true)
+    {
+        // the accumulation master checks whether we should quit
+        if (world.iprobe(0, CALCULATE_OBJECT_TAG))
+        {
+            BeltSystemData dataToSend;
+            world.recv(0, CALCULATE_OBJECT_TAG, dataToSend);
+            auto beltComponent = dataToSend.beltComponent;
+            auto objectComponent = dataToSend.objectComponent;
+
+            float2 nextPosition = {};
+            if (pointInSideLineSegment(beltComponent.start, beltComponent.end, objectComponent.pos))
+            {
+                nextPosition.x = objectComponent.pos.x + beltComponent.speed * timestep_ms / 1000 * objectComponent.direction.x;
+                nextPosition.y = objectComponent.pos.y +beltComponent.speed * timestep_ms / 1000 * objectComponent.direction.y;
+                // std::cout << "nextPosition.x " << nextPosition.x << " nextPosition.y " << nextPosition.y << " \n";
+            }
+            world.send(0, CALCULATE_OBJECT_RESULT_TAG, nextPosition);
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
 }
 
 int main(int argc, char *argv[])
