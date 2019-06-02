@@ -6,6 +6,7 @@
 #include <chrono>
 #include <csignal>
 
+#include "./render/glRender.h"
 #include "./data_prepare.h"
 
 using namespace std::chrono_literals;
@@ -74,6 +75,15 @@ void update(entt::registry &registry)
     }
 }
 
+void render(glRender &glRenderer)
+{
+
+    // if (!glfwWindowShouldClose(glRenderer.window))
+    // {
+    //     glRenderer.render();
+    // }
+}
+
 void renderer(int argc, char *argv[], boost::mpi::communicator &world, boost::mpi::environment &mpi_env)
 {
     // startup logs
@@ -110,6 +120,27 @@ void renderer(int argc, char *argv[], boost::mpi::communicator &world, boost::mp
         registry.assign<object_data>(objectEntity, objects[i].pos, objects[i].direction, objects[i].stopped);
     }
 
+    // graphic initialization
+    // renderParam param;
+    // param.cameraPos = glm::vec3(1024 / 2, 768 / 2, -800);
+    // param.cameraUp = glm::vec3(0, 1, 0);
+    // param.cameraTarget = glm::vec3(1024 / 2, 768 / 2, -1);
+    // param.lightColor = glm::vec3(1, 1, 1);
+    // param.lightPos = param.cameraPos;
+    // glRender glRenderer(param);
+    // for (int i = 0; i < beltNum * objectPerBelt; i++)
+    // {
+    //     model_data data;
+    //     data.init_box(i, &objects[i].pos, glm::vec3(5, 5, 5), glm::vec3(0, 1, 0));
+    //     glRenderer.models.push_back(data);
+    // }
+    // for (int i = 0; i < intersect.size(); i++)
+    // {
+    //     model_data data;
+    //     data.init_box(i + beltNum * objectPerBelt, &intersect[i], glm::vec3(5, 5, 5), glm::vec3(1, 0, 0));
+    //     glRenderer.models.push_back(data);
+    // }
+
     // game loop
 
     using clock = std::chrono::high_resolution_clock;
@@ -133,7 +164,7 @@ void renderer(int argc, char *argv[], boost::mpi::communicator &world, boost::mp
             update(registry);
         }
 
-        // render(registry);
+        // render(glRenderer);
     }
 }
 
