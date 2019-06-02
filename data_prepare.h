@@ -66,6 +66,7 @@ inline bool belt_intersect(belt belt1, belt belt2, float2 & intersect) {
 }
 inline void generate_belt_object(unsigned int beltNum, unsigned int objectPerBelt, object_data * objects, belt * belts, std::vector<float2>& intersects) {
 	for (int i = 0; i < beltNum; i++) {
+		belts[i].speed = 1;
 		if (i % 2 == 0) {//horizontal belt
 			belts[i].start.x = 0; belts[i].start.y = randf(0, windowHeight);
 			belts[i].end.x = windowWidth; belts[i].end.y = randf(0, windowHeight);

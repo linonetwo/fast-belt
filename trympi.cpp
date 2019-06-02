@@ -44,6 +44,7 @@ void update(entt::registry &registry)
     for (auto beltEntity : belts)
     {
         auto &beltComponent = belts.get(beltEntity);
+        
         for (auto objectEntity : objects)
         {
             int xDirection = 0;
@@ -68,11 +69,17 @@ void update(entt::registry &registry)
             auto &objectComponent = objects.get(objectEntity);
             if (pointInSideLineSegment(beltComponent.start, beltComponent.end, objectComponent.pos))
             {
-                objectComponent.pos.x += beltComponent.speed * timestep_ms * xDirection;
-                objectComponent.pos.y += beltComponent.speed * timestep_ms * yDirection;
+                objectComponent.pos.x += beltComponent.speed * timestep_ms / 1000 * xDirection;
+                objectComponent.pos.y += beltComponent.speed * timestep_ms / 1000 * yDirection;
             }
         }
     }
+
+    // for (auto objectEntity : objects)
+    // {
+    //     auto &objectComponent = objects.get(objectEntity);
+    //     std::cout << "x: " << objectComponent.pos.x << " y: " << objectComponent.pos.y << "\n";
+    // }
 }
 
 void render(glRender &glRenderer)
