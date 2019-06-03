@@ -107,12 +107,6 @@ void update(entt::registry &registry, boost::mpi::communicator &world)
             }
         }
     }
-
-    // for (auto objectEntity : objects)
-    // {
-    //     auto &objectComponent = objects.get(objectEntity);
-    //     std::cout << "x: " << objectComponent.pos.x << " y: " << objectComponent.pos.y << "\n";
-    // }
 }
 
 void render(glRender &glRenderer)
@@ -124,15 +118,46 @@ void render(glRender &glRenderer)
     }
 }
 
-void renderer(int argc, char *argv[], boost::mpi::communicator &world, boost::mpi::environment &mpi_env)
+
+void worker(int argc, char *argv[], boost::mpi::communicator &world, boost::mpi::environment &mpi_env)
+{
+    std::cout << "Worker Thread " << world.rank() << " started"
+              << "\n";
+
+    while (true)
+    {
+        // the accumulation master checks whether we should quit
+        if (world.iprobe(0, CALCULATE_OBJECT_TAG))
+        {
+            BeltSystemData dataToSend;
+            world.recv(0, CALCULATE_OBJECT_TAG, dataToSend);
+            auto beltComponent = dataToSend.beltComponent;
+            auto objectComponent = dataToSend.objectComponent;
+
+            float2 nextPosition = {};
+            if (pointInSideLineSegment(beltComponent.start, beltComponent.end, objectComponent.pos))
+            {
+                nextPosition.x = objectComponent.pos.x + beltComponent.speed * timestep_ms / 1000 * objectComponent.direction.x;
+                nextPosition.y = objectComponent.pos.y +beltComponent.speed * timestep_ms / 1000 * objectComponent.direction.y;
+                // std::cout << "nextPosition.x " << nextPosition.x << " nextPosition.y " << nextPosition.y << " \n";
+            }
+            world.send(0, CALCULATE_OBJECT_RESULT_TAG, nextPosition);
+        }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+}
+
+int main(int argc, char *argv[])
 {
     // startup logs
-    std::cout << "Renderer Thread started\n";
     if (argc > 1)
     {
         std::cout << "there are " << argc - 1 << " (more) arguments, they are:\n";
         std::copy(argv + 1, argv + argc, std::ostream_iterator<const char *>(std::cout, "\n"));
     }
+
+
 
     // state initialization
     object_data *objects;
@@ -205,49 +230,5 @@ void renderer(int argc, char *argv[], boost::mpi::communicator &world, boost::mp
         }
 
         // render(glRenderer);
-    }
-}
-
-void worker(int argc, char *argv[], boost::mpi::communicator &world, boost::mpi::environment &mpi_env)
-{
-    std::cout << "Worker Thread " << world.rank() << " started"
-              << "\n";
-
-    while (true)
-    {
-        // the accumulation master checks whether we should quit
-        if (world.iprobe(0, CALCULATE_OBJECT_TAG))
-        {
-            BeltSystemData dataToSend;
-            world.recv(0, CALCULATE_OBJECT_TAG, dataToSend);
-            auto beltComponent = dataToSend.beltComponent;
-            auto objectComponent = dataToSend.objectComponent;
-
-            float2 nextPosition = {};
-            if (pointInSideLineSegment(beltComponent.start, beltComponent.end, objectComponent.pos))
-            {
-                nextPosition.x = objectComponent.pos.x + beltComponent.speed * timestep_ms / 1000 * objectComponent.direction.x;
-                nextPosition.y = objectComponent.pos.y +beltComponent.speed * timestep_ms / 1000 * objectComponent.direction.y;
-                // std::cout << "nextPosition.x " << nextPosition.x << " nextPosition.y " << nextPosition.y << " \n";
-            }
-            world.send(0, CALCULATE_OBJECT_RESULT_TAG, nextPosition);
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-}
-
-int main(int argc, char *argv[])
-{
-    boost::mpi::environment mpi_env{argc, argv};
-    boost::mpi::communicator world;
-    // enter main thread
-    if (world.rank() == 0)
-    {
-        renderer(argc, argv, world, mpi_env);
-    }
-    else
-    {
-        worker(argc, argv, world, mpi_env);
     }
 }
