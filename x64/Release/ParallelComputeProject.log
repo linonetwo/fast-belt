@@ -1,0 +1,31 @@
+﻿  main.cpp
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\data_prepare.h(38): warning C4244: “return”: 从“double”转换到“float”，可能丢失数据
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\data_prepare.h(81): warning C4018: “<”: 有符号/无符号不匹配
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\data_prepare.h(94): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\data_prepare.h(98): warning C4018: “<”: 有符号/无符号不匹配
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\data_prepare.h(114): warning C4018: “<”: 有符号/无符号不匹配
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\data_prepare.h(115): warning C4018: “<”: 有符号/无符号不匹配
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\data_prepare.h(128): warning C4018: “<”: 有符号/无符号不匹配
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\data_prepare.h(140): warning C4018: “<”: 有符号/无符号不匹配
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\data_prepare.h(167): warning C4018: “<”: 有符号/无符号不匹配
+C:\Program Files (x86)\Windows Kits\8.1\Include\shared\minwindef.h(130): warning C4005: “APIENTRY”: 宏重定义
+  e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\render\../3rdParty/inc/glfw3.h(98): note: 参见“APIENTRY”的前一个定义
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\render\GLShader.h(50): warning C4101: “infoLog”: 未引用的局部变量
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\render\GLShader.h(49): warning C4101: “success”: 未引用的局部变量
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\render\glCamera.h(163): warning C4244: “=”: 从“double”转换到“GLfloat”，可能丢失数据
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\render\glCamera.h(164): warning C4244: “=”: 从“double”转换到“GLfloat”，可能丢失数据
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\render\glCamera.h(168): warning C4244: “初始化”: 从“double”转换到“GLfloat”，可能丢失数据
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\render\glCamera.h(169): warning C4244: “初始化”: 从“double”转换到“GLfloat”，可能丢失数据
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\render\glCamera.h(171): warning C4244: “=”: 从“double”转换到“GLfloat”，可能丢失数据
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\render\glCamera.h(172): warning C4244: “=”: 从“double”转换到“GLfloat”，可能丢失数据
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\render\glCamera.h(180): warning C4244: “参数”: 从“double”转换到“GLfloat”，可能丢失数据
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\render\glRender.h(111): warning C4267: “参数”: 从“size_t”转换到“GLsizei”，可能丢失数据
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\render\glRender.h(196): warning C4244: “参数”: 从“double”转换到“GLfloat”，可能丢失数据
+e:\mystudyfiles\大四下\parallel compute\parallelcomputeproject\parallelcomputeproject\render\glRender.h(231): warning C4018: “<”: 有符号/无符号不匹配
+  正在生成代码
+  63 of 126 functions (50.0%) were compiled, the rest were copied from previous compilation.
+    7 functions were new in current compilation
+    13 functions had inline decision re-evaluated but remain unchanged
+  已完成代码的生成
+  ParallelComputeProject.vcxproj -> E:\MyStudyFiles\大四下\Parallel Compute\ParallelComputeProject\ParallelComputeProject\x64\Release\ParallelComputeProject.exe
+  ParallelComputeProject.vcxproj -> E:\MyStudyFiles\大四下\Parallel Compute\ParallelComputeProject\ParallelComputeProject\x64\Release\ParallelComputeProject.pdb (Full PDB)

@@ -97,7 +97,7 @@ public:
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex),
 			(GLvoid*)0);
-		// ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
+		// ÉèÖÃ·¨ÏßÖ¸Õë
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex),
 			(GLvoid*)offsetof(vertex, normal));
@@ -222,7 +222,7 @@ public:
 		glReadPixels(0, 0, output_width, output_height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 
 		char filename[256];
-		// sprintf_s(filename, "./data/ppm_ve/static%05d.ppm", num);
+		sprintf_s(filename, "./data/ppm_ve/static%05d.ppm", num);
 
 		output_image = fopen(filename, "wt");
 

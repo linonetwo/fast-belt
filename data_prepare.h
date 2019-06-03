@@ -2,48 +2,36 @@
 #pragma once
 #include <stdio.h>
 #include <iostream>
+#include <omp.h>
 #include <random>
 #include <vector>
 using namespace std;
-#define windowWidth 1024
-#define windowHeight 768
+#define windowWidth 500
+#define windowHeight 500
+#define affectDist 5
+#define beltSpeed  1
 struct float2 {
 	float x; float y;
-
-	template <typename Archive>
-  void serialize(Archive& ar, const unsigned int version)
-  {
-    ar & x;
-    ar & y;
-  }
 };
+inline float dist(float2 p1, float2 p2) {
+	return sqrtf((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y));
+}
 struct belt {
 	float2 start;
 	float2 end;
 	float speed;
 	float length;
-
-	template <typename Archive>
-  void serialize(Archive& ar, const unsigned int version)
-  {
-    ar & start;
-    ar & end;
-    ar & speed;
-    ar & length;
-  }
 };
 struct object_data {
 	float2 pos;
 	float2 direction;
-	bool stopped;
-
-	template <typename Archive>
-  void serialize(Archive& ar, const unsigned int version)
-  {
-    ar & pos;
-    ar & direction;
-    ar & stopped;
-  }
+	bool state_byLock=true;
+	bool state=true;
+	int intersectId;
+};
+struct intersect {
+	float2 pos;
+	int intersectId;
 };
 inline float randf(float min, float max)
 {
@@ -59,14 +47,14 @@ inline bool get_line_intersection(float p0_x, float p0_y, float p1_x, float p1_y
 	s32_y = p3_y - p2_y;
 
 	denom = s10_x * s32_y - s32_x * s10_y;
-	if (denom == 0)//Æ½ï¿½Ð»ï¿½ï¿½ï¿½
+	if (denom == 0)//Æ½ÐÐ»ò¹²Ïß
 		return 0; // Collinear
 	bool denomPositive = denom > 0;
 
 	s02_x = p0_x - p2_x;
 	s02_y = p0_y - p2_y;
 	s_numer = s10_x * s02_y - s10_y * s02_x;
-	if ((s_numer < 0) == denomPositive)//ï¿½ï¿½ï¿½ï¿½ï¿½Ç´ï¿½ï¿½Úµï¿½ï¿½ï¿½0ï¿½ï¿½Ð¡ï¿½Úµï¿½ï¿½ï¿½1ï¿½Ä£ï¿½ï¿½ï¿½ï¿½Ó·ï¿½Ä¸ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½ï¿½Ò·ï¿½ï¿½ï¿½Ð¡ï¿½Úµï¿½ï¿½Ú·ï¿½Ä¸
+	if ((s_numer < 0) == denomPositive)//²ÎÊýÊÇ´óÓÚµÈÓÚ0ÇÒÐ¡ÓÚµÈÓÚ1µÄ£¬·Ö×Ó·ÖÄ¸±ØÐëÍ¬ºÅÇÒ·Ö×ÓÐ¡ÓÚµÈÓÚ·ÖÄ¸
 		return false; // No collision
 
 	t_numer = s32_x * s02_y - s32_y * s02_x;
@@ -88,9 +76,9 @@ inline bool belt_intersect(belt belt1, belt belt2, float2 & intersect) {
 
 	return get_line_intersection(belt1.start.x, belt1.start.y, belt1.end.x, belt1.end.y, belt2.start.x, belt2.start.y, belt2.end.x, belt2.end.y, &intersect.x, &intersect.y);
 }
-inline void generate_belt_object(unsigned int beltNum, unsigned int objectPerBelt, object_data * objects, belt * belts, std::vector<float2>& intersects) {
+inline void generate_belt_object(unsigned int beltNum, unsigned int objectPerBelt, object_data * objects, belt * belts, std::vector<intersect>& intersects) {
+
 	for (int i = 0; i < beltNum; i++) {
-		belts[i].speed = 1;
 		if (i % 2 == 0) {//horizontal belt
 			belts[i].start.x = 0; belts[i].start.y = randf(0, windowHeight);
 			belts[i].end.x = windowWidth; belts[i].end.y = randf(0, windowHeight);
@@ -126,8 +114,71 @@ inline void generate_belt_object(unsigned int beltNum, unsigned int objectPerBel
 	for (int i = 0; i < beltNum; i++) {
 		for (int j = 0; j < beltNum; j++) {
 			if (belt_intersect(belts[i], belts[j], inter)) {
-				intersects.push_back(inter);
+				intersect point; 
+				point.pos = inter;
+				intersects.push_back(point);
 			}
+		}
+	}
+}
+
+
+inline void check_obj_intersect(object_data * objects, unsigned int objectNum, std::vector<intersect>& intersects) {
+#pragma omp parallel for num_threads(8)
+	for (int i = 0; i < objectNum; i++) {
+		objects[i].state_byLock = true;
+		for (unsigned int j = 0; j < intersects.size(); j++) {
+			objects[i].intersectId = -1;
+			if (dist(objects[i].pos, intersects[j].pos) < affectDist) {
+				objects[i].intersectId = j;
+				intersects[j].intersectId = i;
+				break;
+			}
+		}
+	}
+#pragma omp parallel for num_threads(8)
+	for (int i = 0; i < objectNum; i++) {
+		if (objects[i].intersectId != -1 ) {
+			if (intersects[objects[i].intersectId].intersectId == i) {
+				objects[i].state_byLock = true;
+			}
+			else {
+				objects[i].state_byLock = false;
+			}
+		}
+	}
+	//for (int j = 0; j < intersects.size(); j++) {
+	//	for (unsigned int i = 0; i < objectNum; i++) {
+	//		if (objects[i].intersectId == j) {
+	//			intersects[j].waiters.push_back(i);
+	//		}
+	//	}
+	//	unsigned int activeIdx = (int)randf(0, intersects[j].waiters.size());
+	//	for (unsigned int i = 0; i < intersects[j].waiters.size(); i++) {
+	//		objects[intersects[j].waiters[i]].state_byLock = (i == activeIdx);
+	//	}
+	//	intersects[j].waiters.clear();
+	//}
+}
+
+
+inline void update_object_state(object_data * objects, unsigned int objNumPerBelt, unsigned int beltNum) {
+#pragma omp parallel for num_threads(8)
+	for (int i = 0; i < objNumPerBelt*beltNum; i++) {
+		if (i%objNumPerBelt != 0&&i!=0&&i!= objNumPerBelt*beltNum-1) {//no process belt head if from another array
+			if (objects[i + 1].state_byLock == true) {
+				objects[i].state = true;
+			}
+			else if (dist(objects[i + 1].pos, objects[i].pos) < affectDist) {
+				objects[i].state = false;
+			}
+		}
+		else {
+			objects[i].state = objects[i].state_byLock;
+		}
+		if (objects[i].state == true) {
+			objects[i].pos.x += objects[i].direction.x*beltSpeed;
+			objects[i].pos.y += objects[i].direction.y*beltSpeed;
 		}
 	}
 }

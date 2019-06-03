@@ -1,0 +1,23 @@
+﻿  main.cpp
+f:\wenji\parallelcomputeproject\data_prepare.h(27): warning C4244: “return”: 从“double”转换到“float”，可能丢失数据
+f:\wenji\parallelcomputeproject\data_prepare.h(69): warning C4018: “<”: 有符号/无符号不匹配
+f:\wenji\parallelcomputeproject\data_prepare.h(82): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+f:\wenji\parallelcomputeproject\data_prepare.h(86): warning C4018: “<”: 有符号/无符号不匹配
+f:\wenji\parallelcomputeproject\data_prepare.h(102): warning C4018: “<”: 有符号/无符号不匹配
+f:\wenji\parallelcomputeproject\data_prepare.h(103): warning C4018: “<”: 有符号/无符号不匹配
+c:\program files (x86)\windows kits\8.1\include\shared\minwindef.h(130): warning C4005: “APIENTRY”: 宏重定义
+  f:\wenji\parallelcomputeproject\3rdparty\inc\glfw3.h(98): note: 参见“APIENTRY”的前一个定义
+f:\wenji\parallelcomputeproject\render\glshader.h(50): warning C4101: “infoLog”: 未引用的局部变量
+f:\wenji\parallelcomputeproject\render\glshader.h(49): warning C4101: “success”: 未引用的局部变量
+f:\wenji\parallelcomputeproject\render\glcamera.h(163): warning C4244: “=”: 从“double”转换到“GLfloat”，可能丢失数据
+f:\wenji\parallelcomputeproject\render\glcamera.h(164): warning C4244: “=”: 从“double”转换到“GLfloat”，可能丢失数据
+f:\wenji\parallelcomputeproject\render\glcamera.h(168): warning C4244: “初始化”: 从“double”转换到“GLfloat”，可能丢失数据
+f:\wenji\parallelcomputeproject\render\glcamera.h(169): warning C4244: “初始化”: 从“double”转换到“GLfloat”，可能丢失数据
+f:\wenji\parallelcomputeproject\render\glcamera.h(171): warning C4244: “=”: 从“double”转换到“GLfloat”，可能丢失数据
+f:\wenji\parallelcomputeproject\render\glcamera.h(172): warning C4244: “=”: 从“double”转换到“GLfloat”，可能丢失数据
+f:\wenji\parallelcomputeproject\render\glcamera.h(180): warning C4244: “参数”: 从“double”转换到“GLfloat”，可能丢失数据
+f:\wenji\parallelcomputeproject\render\glrender.h(111): warning C4267: “参数”: 从“size_t”转换到“GLsizei”，可能丢失数据
+f:\wenji\parallelcomputeproject\render\glrender.h(196): warning C4244: “参数”: 从“double”转换到“GLfloat”，可能丢失数据
+f:\wenji\parallelcomputeproject\render\glrender.h(231): warning C4018: “<”: 有符号/无符号不匹配
+  ParallelComputeProject.vcxproj -> F:\wenji\ParallelComputeProject\x64\Debug\ParallelComputeProject.exe
+  ParallelComputeProject.vcxproj -> F:\wenji\ParallelComputeProject\x64\Debug\ParallelComputeProject.pdb (Partial PDB)
