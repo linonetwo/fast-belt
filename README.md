@@ -1,5 +1,7 @@
 # Fast-Belt
 
+Lin dongwu & Liu wenji
+
 ## Introduction
 
 Procedural content generation game will initialize hundreds of thousands of entities in the scene. Different to web applications, where only a small subset of entities will be update each frame, in the game, all of hundreds of thousands of entities need to be update in every 16ms.
